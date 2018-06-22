@@ -13,7 +13,7 @@ namespace LunchLord
         {
             guidTracker = new List<int>();
         }
-        public AttributeDef()
+        public AttributeDef(string _name)
         {
             int i = 0;
             while (guidTracker.Contains(i))
@@ -21,6 +21,8 @@ namespace LunchLord
 
             guid = i;
             guidTracker.Add(i);
+
+            name = _name;
         }
         ~AttributeDef()
         {
@@ -36,7 +38,7 @@ namespace LunchLord
             public string value;
             public int weight;
         };
-        private List<AttributeVal> val;
+        private List<AttributeVal> val = new List<AttributeVal>();
 
         // Properties and public methods
 
@@ -67,28 +69,34 @@ namespace LunchLord
         }
         public void RemoveVal(string value)
         {
-            AttributeVal lav = new AttributeVal();
-            lav.value = value;
             foreach (AttributeVal av in val)
             {
-                if (av.value == lav.value)
+                if (av.value == value)
                 {
                     val.Remove(av);
+                    // Send Event
+
+                    AttribRemoveValEventArgs args = new AttribRemoveValEventArgs();
+                    args.ValName = value;
+                    AttribRemoveVal(this, args);
+
                     return;
                 }
             }
-
-            // Send Event
-
-            AttribRemoveValEventArgs args = new AttribRemoveValEventArgs();
-            args.ValName = value;
-            AttribRemoveVal(this, args);
-
         }
         public List<AttributeVal> Values
         {
             get { return val; }
-        } 
+        }
+        public bool HasValueName(string name)
+        {
+            foreach (var v in val)
+            {
+                if (v.value == name)
+                    return true;
+            }
+            return false;
+        }
 
         public event AttribRemoveValDelegate AttribRemoveVal;
 
